@@ -3,16 +3,26 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define INITIAL_BUFFER_SIZE 1
-#define BUFFER_MULTIPLIER 1.5
 
-#define MAX_NAME_LENGTH 20
-#define MAX_DESCRIPTION_LENGTH 50
+#define INITIAL_BUFFER_SIZE 1
+#define BUFFER_MULTIPLIER 2
+
+#define MAX_NAME_LENGTH 32
+#define MAX_DESCRIPTION_LENGTH 64
+
+
+
 
 typedef struct {
 	char name[MAX_NAME_LENGTH];
 	char description[MAX_DESCRIPTION_LENGTH];
 } Todo;
+
+typedef struct {
+	Todo **todos;
+  size_t used;
+  size_t size;
+} TodosArray;
 
 void checkIfMallocFailed(void *ptr)
 {
@@ -23,69 +33,9 @@ void checkIfMallocFailed(void *ptr)
 	return;
 }
 
-void freeTodos(Todo **pTodos, size_t noOfTodos)
-{
-	for (size_t i = 0; i < noOfTodos; i++) {
-		free(pTodos[i]);
-	}
-	free(pTodos);
-	return;
-}
-
-void removeTodo(Todo **pTodos, size_t *pTodoCount, size_t index)
-{
-	if (index >= *pTodoCount)
-	{
-		//invalid index
-		return;
-	}
-}
-
-void addTodo(Todo **pTodos, size_t *pTodoCount, size_t *pTodosBuffer, Todo newTodo)
-{
-	bool isBufferInvalid = *pTodoCount > *pTodosBuffer;
-	if (isBufferInvalid)
-	{
-		fprintf(stderr, "Buffer is invalid\n");
-    exit(EXIT_FAILURE);
-	}
-	
-	
-	bool todosBufferIsFull = *pTodoCount == *pTodosBuffer;
-	if (todosBufferIsFull)
-	{
-	    *pTodosBuffer *= BUFFER_MULTIPLIER;
-
-	    *pTodos = realloc(*pTodos, sizeof(Todo) * (*pTodosBuffer));
-	    checkIfMallocFailed(pTodos);
-	}
 
 
-	pTodos[0] = malloc(sizeof(Todo));
-	strcpy(pTodos[0]->name, newTodo.name);
-	strcpy(pTodos[0]->description, newTodo.description);
-	
-	(*pTodoCount)++;
-	return;
-}
 
-void getAllTodos(Todo **pTodos, size_t *pTodoCount)
-{
-
-	for (int i = 0; i < *pTodoCount; i++)
-	{
-		Todo todo = (*pTodos)[i];
-
-		printf("Todo\n\nName: %s\nDescription: %s\n", todo.name, todo.description);
-	}
-
-	char exitM[2];
-
-	printf("Press any key to return to the menu: ");
-	scanf("%1s", exitM);
-	printf("\n\n");
-	return;
-}
 
 
 
@@ -96,10 +46,11 @@ int main()
 	size_t todoCount = 0;
 	size_t todosBuffer = INITIAL_BUFFER_SIZE;
 
-
 	//stores pointers to the structures
-	Todo **pTodos = malloc(sizeof(Todo*) * todosBuffer);
+	Todo **pTodos = (Todo**)malloc(sizeof(Todo *) * todosBuffer);
 	checkIfMallocFailed(pTodos);
+
+	
 
 
 	char userAnswer;
@@ -130,15 +81,15 @@ int main()
 		{
 			case 't':
 
-				Todo tempTodo = {"test", "test ttt"};
+				char name[MAX_NAME_LENGTH] = "test";
+				char desc[MAX_DESCRIPTION_LENGTH] = "aaaa";
 
-				addTodo(pTodos, &todoCount, &todosBuffer, tempTodo);
+			
 
 				break;
 
 			case 'a':
 
-				getAllTodos(pTodos, &todoCount);
 
 				break;
 
