@@ -9,10 +9,17 @@
 #define MAX_NAME_LENGTH 20
 #define MAX_DESCRIPTION_LENGTH 50
 
+
 typedef struct {
 	char name[MAX_NAME_LENGTH];
 	char description[MAX_DESCRIPTION_LENGTH];
 } Todo;
+
+typedef struct {
+	size_t length;
+	size_t bufferSize;
+	Todo **arr;
+} TodoStruct;
 
 void checkIfMallocFailed(void *ptr)
 {
@@ -23,84 +30,52 @@ void checkIfMallocFailed(void *ptr)
 	return;
 }
 
-void freeTodos(Todo **pTodos, size_t noOfTodos)
+void addTodo(TodoStruct *pTodoStruct, Todo *pNewTodo)
 {
-	for (size_t i = 0; i < noOfTodos; i++) {
-		free(pTodos[i]);
-	}
-	free(pTodos);
-	return;
-}
-
-void removeTodo(Todo **pTodos, size_t *pTodoCount, size_t index)
-{
-	if (index >= *pTodoCount)
-	{
-		//invalid index
-		return;
-	}
-}
-
-void addTodo(Todo **pTodos, size_t *pTodoCount, size_t *pTodosBuffer, Todo newTodo)
-{
-	bool isBufferInvalid = *pTodoCount > *pTodosBuffer;
+	bool isBufferInvalid = pTodoStruct->length > pTodoStruct->bufferSize;
 	if (isBufferInvalid)
 	{
 		fprintf(stderr, "Buffer is invalid\n");
     exit(EXIT_FAILURE);
 	}
-	
-	
-	bool todosBufferIsFull = *pTodoCount == *pTodosBuffer;
+
+	bool todosBufferIsFull =  pTodoStruct->length == pTodoStruct->bufferSize;;
 	if (todosBufferIsFull)
 	{
-	    *pTodosBuffer *= BUFFER_MULTIPLIER;
+	  Todo **tempArray = pTodoStruct->arr;
 
-	    *pTodos = realloc(*pTodos, sizeof(Todo) * (*pTodosBuffer));
-	    checkIfMallocFailed(pTodos);
+		pTodoStruct->bufferSize *= 2;
+		pTodoStruct->arr = realloc(pTodoStruct->arr, (sizeof(Todo*) * pTodoStruct->bufferSize));
+
 	}
-
-
-	pTodos[0] = malloc(sizeof(Todo));
-	strcpy(pTodos[0]->name, newTodo.name);
-	strcpy(pTodos[0]->description, newTodo.description);
+	pTodoStruct->arr[pTodoStruct->length] = pNewTodo;
 	
-	(*pTodoCount)++;
+	pTodoStruct->length++;
 	return;
 }
 
-void getAllTodos(Todo **pTodos, size_t *pTodoCount)
+void getAllTodos(TodoStruct *pTodoStruct)
 {
-
-	for (int i = 0; i < *pTodoCount; i++)
-	{
-		Todo todo = (*pTodos)[i];
-
-		printf("Todo\n\nName: %s\nDescription: %s\n", todo.name, todo.description);
+	for (int i = 0; i < pTodoStruct->length; i++) {
+		printf("\nName: %s\nDescription: %s\n", pTodoStruct->arr[i]->name, pTodoStruct->arr[i]->description);
 	}
-
-	char exitM[2];
-
-	printf("Press any key to return to the menu: ");
-	scanf("%1s", exitM);
-	printf("\n\n");
-	return;
 }
 
+void initTodos(TodoStruct *todoStruct, size_t initialSize)
+{
+	todoStruct->arr = malloc(sizeof(Todo*) * initialSize);
+	todoStruct->bufferSize = initialSize;
+	todoStruct->length = 0;
+}
 
 
 int main()
 {
 	printf("Todo app.\n\n");
 
-	size_t todoCount = 0;
-	size_t todosBuffer = INITIAL_BUFFER_SIZE;
-
-
-	//stores pointers to the structures
-	Todo **pTodos = malloc(sizeof(Todo*) * todosBuffer);
-	checkIfMallocFailed(pTodos);
-
+	
+	TodoStruct todoStruct;
+	initTodos(&todoStruct, INITIAL_BUFFER_SIZE);
 
 	char userAnswer;
 
@@ -132,13 +107,16 @@ int main()
 
 				Todo tempTodo = {"test", "test ttt"};
 
-				addTodo(pTodos, &todoCount, &todosBuffer, tempTodo);
+				Todo *pPassTodo = malloc(sizeof(Todo));
+				*pPassTodo = tempTodo;
+				
+				addTodo(&todoStruct, pPassTodo);
 
 				break;
 
 			case 'a':
 
-				getAllTodos(pTodos, &todoCount);
+				getAllTodos(&todoStruct);
 
 				break;
 
@@ -152,7 +130,7 @@ int main()
 		
 	}
 
-	freeTodos(pTodos, todoCount);
+	
 
 	return EXIT_SUCCESS;
 }
