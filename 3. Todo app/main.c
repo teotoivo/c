@@ -3,8 +3,9 @@
 #include <stdbool.h>
 #include <string.h>
 
+
 #define INITIAL_BUFFER_SIZE 1
-#define BUFFER_MULTIPLIER 1.5
+#define BUFFER_MULTIPLIER 2
 
 #define MAX_NAME_LENGTH 20
 #define MAX_DESCRIPTION_LENGTH 50
