@@ -99,7 +99,6 @@ int main()
 
 	while (userAnswer != 'q')
 	{
-		
 		printf("\n\nWhat do you want to do?\n");
 
 		printf("a  Get all todos?\n");
@@ -127,32 +126,40 @@ int main()
 		switch (userAnswer)
 		{
 			case 'a':
+				system("cls");
 
 				getAllTodos(&todoStruct);
 
+				system("cls");
 				break;
 
 
 			case 'b':
+				system("cls"); 
 
 				printf("\nEnter todos id: ");
 				
 				char ans = fgetc(stdin);
 
-				if (!strchr(ans, '\n')) {
+				if (!strchr(&ans, '\n')) {
 					while(fgetc(stdin)!='\n');
 				}
 
+				system("cls");
 				break;
 
 
 			case 'c':
-
+				system("cls");
+				
+				system("cls");
 				break;
 
 
 
 			case 'd':
+				system("cls");
+				
 
 				char name[MAX_NAME_LENGTH];
 				char description[MAX_DESCRIPTION_LENGTH];
@@ -181,27 +188,49 @@ int main()
 
 				printf("\nTodo created!");
 
+				printf("Press enter to continue...");
+
+				if (getchar() != '\n') {
+					while(getchar() != '\n');
+				}
+
+				system("cls");
 				break;
 
 
 
 			case 'e':
+				system("cls");
 
+				system("cls");
 				break;
 
-
 			case 'f':
+				system("cls");
 
+				system("cls");
 				break;
 
 
 
 			case 'q':
+				
+				system("cls");
+
 				printf("Bye bye!");
+
+				
 				break;
 
 			default:
+
+				system("cls");
 				printf("%c is not an option.", userAnswer);
+
+				if (getchar() != '\n') {
+					while(getchar() != '\n');
+				}
+				system("cls");
 				break;
 
 		}
