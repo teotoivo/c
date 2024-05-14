@@ -69,14 +69,19 @@ void addTodo(TodoStruct *pTodoStruct, char *newName, char *newDescription)
 void getAllTodos(TodoStruct *pTodoStruct)
 {
 	for (int i = 0; i < pTodoStruct->length; i++) {
-		printf("\nTodos id: %d\nName: %s\nDescription: %s\n", i+1, pTodoStruct->arr[i]->name, pTodoStruct->arr[i]->description);
+		printf("\nTodos id: %d\nName: %s\nDescription: %s", i+1, pTodoStruct->arr[i]->name, pTodoStruct->arr[i]->description);
 	}
 
-	printf("Press enter to continue...");
+	printf("\nPress enter to continue...");
 
 	if (getchar() != '\n') {
 		while(getchar() != '\n');
 	}
+}
+
+void getTodoById(int *id)
+{
+
 }
 
 void initTodos(TodoStruct *todoStruct, size_t initialSize)
@@ -84,6 +89,11 @@ void initTodos(TodoStruct *todoStruct, size_t initialSize)
 	todoStruct->arr = malloc(sizeof(Todo*) * initialSize);
 	todoStruct->bufferSize = initialSize;
 	todoStruct->length = 0;
+}
+
+void clear()
+{
+	printf("\033[2J\033[1;1H");  
 }
 
 
@@ -118,49 +128,46 @@ int main()
 		// Clear any extra characters from the terminal if there are any
 		while (getchar() != '\n');
 
-
-
-
-		printf("\n\n");
-
 		switch (userAnswer)
 		{
 			case 'a':
-				system("cls");
+				clear();
 
 				getAllTodos(&todoStruct);
 
-				system("cls");
+				clear();
 				break;
 
 
 			case 'b':
-				system("cls"); 
+				clear();
 
 				printf("\nEnter todos id: ");
 				
-				char ans = fgetc(stdin);
+				int tempAns;
+				scanf("%d", &tempAns);
+				
+				printf("%d", tempAns);
 
-				if (!strchr(&ans, '\n')) {
-					while(fgetc(stdin)!='\n');
-				}
+				// Clear any extra characters from the terminal if there are any
+				while (getchar() != '\n');
+				
+				
 
-				system("cls");
+				clear();
 				break;
 
 
 			case 'c':
-				system("cls");
+				clear();
 				
-				system("cls");
+				clear();
 				break;
 
 
 
 			case 'd':
-				system("cls");
-				
-
+				clear();
 				char name[MAX_NAME_LENGTH];
 				char description[MAX_DESCRIPTION_LENGTH];
 
@@ -188,34 +195,32 @@ int main()
 
 				printf("\nTodo created!");
 
-				printf("Press enter to continue...");
+				printf("\nPress enter to continue...");
 
 				if (getchar() != '\n') {
 					while(getchar() != '\n');
 				}
 
-				system("cls");
+				clear();
 				break;
 
 
 
 			case 'e':
-				system("cls");
+				clear();
 
-				system("cls");
+				clear();
 				break;
 
 			case 'f':
-				system("cls");
+				clear();
 
-				system("cls");
+				clear();
 				break;
 
-
-
 			case 'q':
+				clear();
 				
-				system("cls");
 
 				printf("Bye bye!");
 
@@ -223,14 +228,14 @@ int main()
 				break;
 
 			default:
-
-				system("cls");
+				clear();
+				
 				printf("%c is not an option.", userAnswer);
 
 				if (getchar() != '\n') {
 					while(getchar() != '\n');
 				}
-				system("cls");
+				clear();
 				break;
 
 		}
