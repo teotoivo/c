@@ -17,7 +17,6 @@ void displayTasks(Task *head);
 void saveTasks(Task *head, const char *filename);
 void loadTasks(Task **head, const char *filename);
 void clearTasks(Task **head);
-int getTaskCount(Task *head);
 void printMenu();
 void clearInputBuffer();
 
