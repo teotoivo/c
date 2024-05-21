@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define MAX_NAME_LENGTH 20
-#define MAX_DESCRIPTION_LENGTH 50
+#define MAX_NAME_LENGTH 32
+#define MAX_DESCRIPTION_LENGTH 64
 
 struct Node; // Forward declaration
 
@@ -23,14 +23,77 @@ typedef struct {
     Node* last;
 } Header;
 
+/**
+ * @brief Clears the console screen.
+ */
 void clear();
+
+/**
+ * @brief Initializes a Header struct.
+ * 
+ * @param header Pointer to the Header struct to initialize.
+ */
 void initHeader(Header* header);
+
+/**
+ * @brief Waits for the user to press enter to continue.
+ */
 void waitForEnter();
+
+/**
+ * @brief Prints the menu options to the console.
+ * 
+ * @return Always returns 0.
+ */
 int printMenu();
+
+/**
+ * @brief Gets the user's menu option selection.
+ * 
+ * @return The selected option as an integer.
+ */
 int getOption();
+
+/**
+ * @brief Handles printing all todo items in the header.
+ * 
+ * @param header Pointer to the Header struct containing the todo items.
+ */
 void handlePrintAll(Header* header);
+
+/**
+ * @brief Creates a new todo Node struct.
+ * 
+ * @param name The name of the todo item.
+ * @param description The description of the todo item.
+ * @return Pointer to the newly created Node struct.
+ */
 Node* createTodoStruct(char* name, char* description);
+
+/**
+ * @brief Adds a todo Node to the Header at a specified position.
+ * 
+ * @param header Pointer to the Header struct to add the Node to.
+ * @param node Pointer to the Node struct to add.
+ * @param position The position to add the Node at (0 for start, -1 for end, or specific index).
+ * @return 0 on success, 1 on failure.
+ */
 int addTodo(Header* header, Node* node, long int position);
+
+/**
+ * @brief Handles adding a new todo.
+ * 
+ * @param header Pointer to the Header struct containing the todo items.
+ */
+void handleAddTodo(Header* header);
+
+/**
+ * @brief Handles getting todo by its Id.
+ * 
+ * @param header Pointer to the header struct containing the todo items.
+*/
+void handleGetTodoById(Header* header);
+
 
 int main() {
     Header header;
@@ -46,14 +109,11 @@ int main() {
                 break;
 
             case 2: // print by id
-                
+                handleGetTodoById(&header);
                 break;
 
             case 3: // add todo
-                addTodo(&header, createTodoStruct("test1", ""), 0);
-                addTodo(&header, createTodoStruct("test0", ""), 0);
-                addTodo(&header, createTodoStruct("test2", ""), -1);
-								waitForEnter();
+                handleAddTodo(&header);
                 break;
 
             case 4: // delete todo
@@ -107,19 +167,21 @@ int printMenu() {
 }
 
 int getOption() {
-    printMenu();
-    
     int option;
+    printMenu();
     printf("\n\nSelect an option: ");
-    
-    if (scanf("%d", &option) != 1) {
+    // checks that the input is valid
+    while (scanf("%d", &option) != 1) {
+        //if input isnt valid clears the terminal and reask for the value
         while (getchar() != '\n');
         clear();
         printf("\nInvalid input!");
         waitForEnter();
         clear();
-        return getOption();
+        printMenu();
+        printf("\n\nSelect an option: ");
     }
+    //clears the terminal from the '\n' that is left after a scanf
     while (getchar() != '\n');
     return option;
 }
@@ -157,28 +219,20 @@ Node* createTodoStruct(char* name, char* description) {
     return todoNode;
 }
 int addTodo(Header* header, Node* pNode, long int position)
-{
-	printf("\npos: %d", position);
-	printf("\nlen: %d", header->length);
-
-	printf("\ncomp: %d", position > header->length);
-
-	printf("\n\n");
-	if (position > header->length + 1 || position < -1)
-	{
-		printf("Invalid position!");
-		free(pNode);
-		waitForEnter();
-		return 1;
-	}
+{    
+	if ((position > header->length || position < 0) && position != -1) {
+        printf("Invalid position!");
+        free(pNode);
+        waitForEnter();
+        return 1;
+    }
 
 	pNode->next = NULL;
 	pNode->previous = NULL;
 
-	switch (position)
-	{
-	case 0:
-		if (header->first) {
+    if (position == 0) // start
+    {
+        if (header->first != NULL) {
 			pNode->next = header->first;
 			header->first->previous = pNode;
 		} else {
@@ -187,10 +241,9 @@ int addTodo(Header* header, Node* pNode, long int position)
 		header->first = pNode;
 
 		header->length++;
-		break;
-
-	case -1:
-		if (header->last) {
+    } else if (position == -1 || position == header->length) // end
+    {
+        if (header->last != NULL) {
 			pNode->previous = header->last;
 			header->last->next = pNode;
 		} else {
@@ -199,11 +252,73 @@ int addTodo(Header* header, Node* pNode, long int position)
 		header->last = pNode;
 
 		header->length++;
-		break;
-	
-	default:
-		
-		break;
-	}
+    } else {
+        Node* current = header->first;
+        for (int i = 0; i < position; i++) {
+            current = current->next;
+        }
+        pNode->next = current;
+        pNode->previous = current->previous;
+        current->previous->next = pNode;
+        current->previous = pNode;
+        header->length++;
+    }
+    return 0;
+}
 
+void handleAddTodo(Header* header)
+{
+    char name[MAX_NAME_LENGTH] = "";
+    char description[MAX_DESCRIPTION_LENGTH] = "";
+    printf("Todo name: ");
+    if (fgets(name, sizeof(name), stdin) == NULL)
+    {
+        printf("\nAn error accured!");
+        waitForEnter();
+        return;
+    }
+    if (!strchr(name, '\n')) {
+        while (fgetc(stdin) != '\n');
+        printf("Input too long. It has been cut at %d\n", MAX_NAME_LENGTH-1);
+    } else {
+        name[strcspn(name, "\n")] = '\0';
+    }
+    printf("Description name: ");
+    if (fgets(description, sizeof(description), stdin) == NULL)
+    {
+        printf("\nAn error accured!");
+        waitForEnter();
+        return;
+    }
+    if (!strchr(description, '\n')) {
+        while (fgetc(stdin) != '\n');
+        printf("Input too long. It has been cut at %d\n", MAX_DESCRIPTION_LENGTH-1);
+    } else {
+        description[strcspn(description, "\n")] = '\0';
+    }
+
+    if (addTodo(header, createTodoStruct(name, description), -1) == 1)
+    {
+        return;
+    }
+
+    clear();
+    printf("Todo added!\n");
+    waitForEnter();
+}
+
+void handleGetTodoById(Header* header)
+{
+    size_t todoId;
+    
+    printf("Give devices id: ");
+    
+    if (scanf("%d", &todoId) != 1) {
+        while (getchar() != '\n');
+        clear();
+        printf("\nInvalid input!");
+        waitForEnter();
+        clear();
+    }
+    while (getchar() != '\n');
 }
